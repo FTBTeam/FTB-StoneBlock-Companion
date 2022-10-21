@@ -125,6 +125,15 @@ public class ToolsData {
             this.add("screens.ftbsbc.create", "Create");
             this.add("screens.ftbsbc.select", "Select");
             this.add("screens.ftbsbc.close", "Close");
+
+            this.add("ftbsbc.tooltip.fireplow", "Hold right click whilst looking at Stone to create lava");
+            this.add("ftbsbc.tooltip.hammers", "Crushes materials down to their core components");
+            this.add("ftbsbc.tooltip.auto-hammers", "Automatically crushes materials down using the hammer based on the tier of hammer");
+
+            this.add("ftbsbc.jade.waiting", "Waiting for input: %s ticks");
+            this.add("ftbsbc.jade.processing", "Processing: %s/%s");
+            this.add("ftbsbc.jade.input", "Input");
+            this.add("ftbsbc.jade.buffer", "Buffer");
         }
     }
 

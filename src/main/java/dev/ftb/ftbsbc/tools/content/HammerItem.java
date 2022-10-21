@@ -1,18 +1,30 @@
 package dev.ftb.ftbsbc.tools.content;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 
 public class HammerItem extends DiggerItem {
 
     public HammerItem(Tiers tier, float attackBase, float attackSpeed, Properties arg2) {
         super(attackBase, attackSpeed, tier, BlockTags.MINEABLE_WITH_PICKAXE, arg2);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack arg, @Nullable Level arg2, List<Component> list, TooltipFlag arg3) {
+        list.add(new TranslatableComponent("ftbsbc.tooltip.hammers").gray());
     }
 
     @Override

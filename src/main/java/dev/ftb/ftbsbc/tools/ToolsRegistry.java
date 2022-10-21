@@ -1,12 +1,12 @@
 package dev.ftb.ftbsbc.tools;
 
 import dev.ftb.ftbsbc.FTBStoneBlock;
+import dev.ftb.ftbsbc.tools.content.CrookItem;
 import dev.ftb.ftbsbc.tools.content.FirePlowItem;
+import dev.ftb.ftbsbc.tools.content.HammerItem;
 import dev.ftb.ftbsbc.tools.content.autohammer.AutoHammerBlock;
 import dev.ftb.ftbsbc.tools.content.autohammer.AutoHammerBlockEntity;
 import dev.ftb.ftbsbc.tools.content.autohammer.AutoHammerProperties;
-import dev.ftb.ftbsbc.tools.content.CrookItem;
-import dev.ftb.ftbsbc.tools.content.HammerItem;
 import dev.ftb.ftbsbc.tools.loot.CrookModifier;
 import dev.ftb.ftbsbc.tools.loot.HammerModifier;
 import dev.ftb.ftbsbc.tools.recipies.CrookRecipe;
@@ -14,9 +14,12 @@ import dev.ftb.ftbsbc.tools.recipies.CrookRecipeSerializer;
 import dev.ftb.ftbsbc.tools.recipies.HammerRecipe;
 import dev.ftb.ftbsbc.tools.recipies.HammerRecipeSerializer;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,6 +29,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -72,10 +76,10 @@ public interface ToolsRegistry {
     RegistryObject<Block> DIAMOND_AUTO_HAMMER = BLOCK_REGISTRY.register("diamond_auto_hammer", () -> new AutoHammerBlock(DIAMOND_HAMMER, AutoHammerProperties.DIAMOND));
     RegistryObject<Block> NETHERITE_AUTO_HAMMER = BLOCK_REGISTRY.register("netherite_auto_hammer", () -> new AutoHammerBlock(NETHERITE_HAMMER, AutoHammerProperties.NETHERITE));
 
-    RegistryObject<BlockItem> IRON_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("iron_auto_hammer", () -> new BlockItem(IRON_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP)));
-    RegistryObject<BlockItem> GOLD_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("gold_auto_hammer", () -> new BlockItem(GOLD_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP)));
-    RegistryObject<BlockItem> DIAMOND_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("diamond_auto_hammer", () -> new BlockItem(DIAMOND_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP)));
-    RegistryObject<BlockItem> NETHERITE_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("netherite_auto_hammer", () -> new BlockItem(NETHERITE_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP)));
+    RegistryObject<BlockItem> IRON_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("iron_auto_hammer", () -> new ToolTipBlockItem(IRON_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP), new TranslatableComponent("ftbsbc.tooltip.auto-hammers").gray()));
+    RegistryObject<BlockItem> GOLD_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("gold_auto_hammer", () -> new ToolTipBlockItem(GOLD_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP), new TranslatableComponent("ftbsbc.tooltip.auto-hammers").gray()));
+    RegistryObject<BlockItem> DIAMOND_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("diamond_auto_hammer", () -> new ToolTipBlockItem(DIAMOND_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP), new TranslatableComponent("ftbsbc.tooltip.auto-hammers").gray()));
+    RegistryObject<BlockItem> NETHERITE_AUTO_HAMMER_BLOCK_ITEM = ITEM_REGISTRY.register("netherite_auto_hammer", () -> new ToolTipBlockItem(NETHERITE_AUTO_HAMMER.get(), new Item.Properties().tab(CREATIVE_GROUP), new TranslatableComponent("ftbsbc.tooltip.auto-hammers").gray()));
 
     RegistryObject<BlockEntityType<AutoHammerBlockEntity.Iron>> IRON_AUTO_HAMMER_BLOCK_ENTITY = BLOCK_ENTITY_REGISTRY.register("iron_auto_hammer", () -> BlockEntityType.Builder.of(AutoHammerBlockEntity.Iron::new, IRON_AUTO_HAMMER.get()).build(null));
     RegistryObject<BlockEntityType<AutoHammerBlockEntity.Gold>> GOLD_AUTO_HAMMER_BLOCK_ENTITY = BLOCK_ENTITY_REGISTRY.register("gold_auto_hammer", () -> BlockEntityType.Builder.of(AutoHammerBlockEntity.Gold::new, GOLD_AUTO_HAMMER.get()).build(null));
@@ -90,4 +94,17 @@ public interface ToolsRegistry {
     RegistryObject<RecipeSerializer<?>> HAMMER_RECIPE_SERIALIZER = RECIPE_SERIALIZER_REGISTRY.register("hammer", HammerRecipeSerializer::new);
     RegistryObject<RecipeType<HammerRecipe>> HAMMER_RECIPE_TYPE = RECIPE_TYPE_REGISTRY.register("hammer", () -> new RecipeType<>() {});
 
+    class ToolTipBlockItem extends BlockItem {
+        private Component tooltip;
+
+        public ToolTipBlockItem(Block arg, Properties arg2, Component tooltip) {
+            super(arg, arg2);
+            this.tooltip = tooltip;
+        }
+
+        @Override
+        public void appendHoverText(ItemStack arg, @Nullable Level arg2, List<Component> list, TooltipFlag arg3) {
+            list.add(tooltip);
+        }
+    }
 }
