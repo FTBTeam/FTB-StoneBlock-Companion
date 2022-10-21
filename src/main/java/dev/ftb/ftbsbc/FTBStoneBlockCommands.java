@@ -10,8 +10,6 @@ import dev.ftb.ftbsbc.dimensions.DimensionsManager;
 import dev.ftb.ftbsbc.dimensions.kubejs.StoneBlockDataKjs;
 import dev.ftb.ftbsbc.dimensions.level.DimensionStorage;
 import dev.ftb.ftbsbc.dimensions.level.DynamicDimensionManager;
-import dev.ftb.ftbsbc.dimensions.level.stoneblock.StartStructure;
-import dev.ftb.ftbsbc.dimensions.level.stoneblock.StartStructurePiece;
 import dev.ftb.ftbsbc.dimensions.prebuilt.PrebuiltCommandArgument;
 import dev.ftb.mods.ftbteams.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.data.Team;
@@ -21,15 +19,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.storage.LevelResource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,38 +63,9 @@ public class FTBStoneBlockCommands {
                 )
                 .then(Commands.literal("lobby").executes(context -> lobby(context.getSource())))
                 .then(Commands.literal("home").executes(context -> home(context.getSource())))
-                .then(Commands.literal("ffs").executes(context -> spawnLobby(context.getSource())))
         );
 
         commandDispatcher.register(Commands.literal("ftbstoneblock").redirect(commands));
-    }
-
-    private static int spawnLobby(CommandSourceStack source) {
-        var level = source.getLevel();
-
-        StructureTemplate lobby = level.getStructureManager().getOrCreate(StoneBlockDataKjs.lobbyStructure);
-        StructurePlaceSettings placeSettings = StartStructurePiece.makeSettings(lobby);
-        BlockPos spawnPos = StartStructure.locateSpawn(lobby, placeSettings);
-        BlockPos lobbyLoc = BlockPos.ZERO.offset(-(lobby.getSize().getX() / 2), 0, -(lobby.getSize().getZ() / 2));
-        BlockPos playerSpawn = spawnPos.offset(lobbyLoc.getX(), lobbyLoc.getY(), lobbyLoc.getZ());
-
-        lobby.placeInWorld(level, lobbyLoc, lobbyLoc, placeSettings, level.random, Block.UPDATE_ALL);
-
-        DimensionStorage.get().setLobbySpawned(true);
-        DimensionStorage.get().setLobbySpawnPos(playerSpawn);
-
-        level.removeBlock(playerSpawn, false);
-        level.setDefaultSpawnPos(playerSpawn, 0);
-
-        System.out.println(spawnPos);
-        System.out.println(playerSpawn);
-
-        level.players().forEach(e -> {
-            e.teleportTo(level, playerSpawn.getX(), playerSpawn.getY(), playerSpawn.getZ(), e.getYRot(), e.getXRot());
-            e.setRespawnPosition(level.dimension(), spawnPos, -180, true, false);
-        });
-
-        return 0;
     }
 
     private static int listArchived(CommandSourceStack source) {

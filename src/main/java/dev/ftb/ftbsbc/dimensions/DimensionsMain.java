@@ -111,7 +111,7 @@ public class DimensionsMain {
         if (event.getWorld().dimension().location().equals(OVERWORLD) && player.getRespawnDimension().location().equals(OVERWORLD)) {
             // Assume this is their first time joining the world as otherwise their respawn dimension would be their own dimension
             BlockPos lobbySpawnPos = DimensionStorage.get().getLobbySpawnPos();
-            if (player.getRespawnPosition() != lobbySpawnPos) {
+            if (player.getRespawnPosition() == null || !player.getRespawnPosition().equals(lobbySpawnPos)) {
                 player.setRespawnPosition(event.getWorld().dimension(), lobbySpawnPos, -180, true, false);
                 player.teleportTo((ServerLevel) event.getWorld(), lobbySpawnPos.getX(), lobbySpawnPos.getY(), lobbySpawnPos.getZ(), -180F, -10F);
             }
