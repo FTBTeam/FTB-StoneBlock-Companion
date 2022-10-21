@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "ftbsbc:block/stone_block_portal_ns"
+    },
+    "axis=z": {
+      "model": "ftbsbc:block/stone_block_portal_ew"
+    }
+  }
+}

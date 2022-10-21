@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "dev.ftb.ftbsbc.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "mixins": [
+    "ServerPlayerMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

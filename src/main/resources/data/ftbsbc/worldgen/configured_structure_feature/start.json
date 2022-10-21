@@ -1,0 +1,12 @@
+{
+  "type": "ftbsbc:start",
+  "config": {
+    "start_pool": "ftbsbc:start/start_pool",
+    "size": 2
+  },
+
+  "biomes": "#ftbsbc:has_structure/start",
+  "adapt_noise": true,
+  "spawn_overrides": {
+  }
+}

@@ -1,0 +1,39 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+license = "All rights reserved"
+
+[[mods]]
+  modId = "ftbsbc"
+  version = "${version}"
+  displayName = "FTB StoneBlock Companion"
+  description = '''
+  A Companion Mod for FTB StoneBlock 3
+  '''
+
+[[dependencies.ftbsbc]]
+  modId = "forge"
+  mandatory = true
+  versionRange = "[40,)"
+  ordering = "NONE"
+  side = "BOTH"
+
+[[dependencies.ftbsbc]]
+  modId = "kubejs"
+  mandatory = true
+  versionRange = "[1802.5.5-build.546,1900)"
+  ordering = "NONE"
+  side = "BOTH"
+
+[[dependencies.ftbsbc]]
+  modId = "ftbteams"
+  mandatory = true
+  versionRange = "[1802.2.6-build.69,1900)"
+  ordering = "NONE"
+  side = "BOTH"
+
+[[dependencies.ftbsbc]]
+  modId = "minecraft"
+  mandatory = true
+  versionRange = "[1.18.2,1.19)"
+  ordering = "NONE"
+  side = "BOTH"

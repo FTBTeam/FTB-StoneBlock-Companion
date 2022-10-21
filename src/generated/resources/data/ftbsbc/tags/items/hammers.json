@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "ftbsbc:stone_hammer",
+    "ftbsbc:iron_hammer",
+    "ftbsbc:gold_hammer",
+    "ftbsbc:diamond_hammer",
+    "ftbsbc:netherite_hammer"
+  ]
+}

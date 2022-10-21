@@ -1,0 +1,11 @@
+{
+  "conditions": [
+    {
+      "condition": "minecraft:match_tool",
+      "predicate": {
+        "tag": "ftbsbc:hammers"
+      }
+    }
+  ],
+  "type": "ftbsbc:hammer_loot_modifier"
+}

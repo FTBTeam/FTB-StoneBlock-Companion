@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "ftbsbc:start",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "salt": 1694767081,
+    "spacing": 1,
+    "separation": 0,
+    "type": "minecraft:random_spread"
+  }
+}

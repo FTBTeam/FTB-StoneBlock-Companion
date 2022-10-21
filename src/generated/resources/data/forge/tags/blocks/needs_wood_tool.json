@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "ftbsbc:netherite_auto_hammer",
+    "ftbsbc:gold_auto_hammer",
+    "ftbsbc:diamond_auto_hammer",
+    "ftbsbc:iron_auto_hammer"
+  ]
+}

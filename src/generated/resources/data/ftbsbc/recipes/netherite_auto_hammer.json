@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ITI",
+    "XCX",
+    "RGR"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "X": {
+      "tag": "forge:glass"
+    },
+    "T": {
+      "item": "ftbsbc:netherite_hammer"
+    },
+    "C": {
+      "item": "ftbsbc:diamond_auto_hammer"
+    }
+  },
+  "result": {
+    "item": "ftbsbc:netherite_auto_hammer"
+  }
+}
