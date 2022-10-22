@@ -14,10 +14,12 @@ import dev.ftb.ftbsbc.portal.PortalRegistry;
 import dev.ftb.ftbsbc.tools.ToolsClient;
 import dev.ftb.ftbsbc.tools.ToolsMain;
 import dev.ftb.ftbsbc.tools.ToolsRegistry;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -65,8 +67,8 @@ public class FTBStoneBlock {
 
     private void clientSetup(final FMLClientSetupEvent event) {
         ToolsClient.init();
-        DimensionsClient.init();
         PortalClient.init();
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> DimensionsClient::init);
     }
 
     public void postSetup(FMLLoadCompleteEvent event) {

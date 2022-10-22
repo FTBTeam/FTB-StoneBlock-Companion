@@ -8,7 +8,6 @@ import net.minecraft.data.worldgen.Pools;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -25,7 +24,6 @@ import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -47,7 +45,8 @@ public class DungeonStructureFeature extends StructureFeature<DungeonStructureFe
 			int x = arg.chunkPos().getMinBlockX();
 			int z = arg.chunkPos().getMinBlockZ();
 
-			if ((x * x + z * z) >= arg.config().minStructureDistance * arg.config().minStructureDistance && arg.config().maxStructureDistance * arg.config().maxStructureDistance <= (x * x + z * z)) {
+			double v = circularDistance(BlockPos.ZERO, new Vec3i(x, 0, z));
+			if (v >= arg.config().minStructureDistance && v <= arg.config().maxStructureDistance) {
 				BlockPos blockPos = new BlockPos(arg.chunkPos().getMinBlockX(), Mth.clamp(Mth.randomBetween(new Random(), arg.heightAccessor().getMinBuildHeight(), arg.heightAccessor().getMaxBuildHeight()), arg.config().minHeight, arg.config().maxHeight), arg.chunkPos().getMinBlockZ());
 				Pools.bootstrap();
 
@@ -56,6 +55,14 @@ public class DungeonStructureFeature extends StructureFeature<DungeonStructureFe
 
 			return Optional.empty();
 		});
+	}
+
+	public static double circularDistance(BlockPos from, Vec3i to) {
+		float f = to.getX() - from.getX();
+		float g = to.getY() - from.getY();
+		float h = to.getZ() - from.getZ();
+
+		return Math.sqrt(Math.pow(f, 2) + Math.pow(g, 2) + Math.pow(h, 2));
 	}
 
 	@Override

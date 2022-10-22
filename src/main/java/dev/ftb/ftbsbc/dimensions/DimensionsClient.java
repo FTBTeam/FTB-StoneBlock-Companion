@@ -7,19 +7,38 @@ import dev.ftb.ftbsbc.dimensions.net.CreateDimensionForTeam;
 import dev.ftb.ftbsbc.dimensions.screen.StartSelectScreen;
 import dev.latvian.mods.kubejs.KubeJS;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
+@Mod.EventBusSubscriber(Dist.CLIENT)
 public class DimensionsClient {
+    public static boolean debugMode = false;
+
+    @SubscribeEvent
+    public static void registerClientCommand(RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(Commands.literal("ftbstoneblock-client").then(Commands.literal("debug")
+                .executes(context -> DimensionsClient.toggleDebug()))
+        );
+    }
+
     public static void init() {
         DimensionSpecialEffects.EFFECTS.put(new ResourceLocation(FTBStoneBlock.MOD_ID, "stoneblock"), new StoneblockDimensionSpecialEffects());
     }
@@ -53,6 +72,15 @@ public class DimensionsClient {
         Minecraft.getInstance().setScreen(new StartSelectScreen(prebuild -> {
             new CreateDimensionForTeam(prebuild.id).sendToServer();
         }));
+    }
+
+    public static int toggleDebug() {
+        debugMode = !debugMode;
+        return 0;
+    }
+
+    public static Set<ResourceKey<Level>> playerLevels(Player player) {
+        return ((LocalPlayer) player).connection.levels();
     }
 
     private static class StoneblockDimensionSpecialEffects extends DimensionSpecialEffects {

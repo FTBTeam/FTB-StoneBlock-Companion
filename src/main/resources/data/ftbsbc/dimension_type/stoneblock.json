@@ -1,6 +1,6 @@
 {
 	"name": "ftbsbc:stoneblock",
-	"fixed_time": 18000,
+	"fixed_time": 6000,
 	"ultrawarm": false,
 	"natural": true,
 	"coordinate_scale": 1.0,

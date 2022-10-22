@@ -4,7 +4,7 @@ import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
 import dev.ftb.ftbsbc.FTBStoneBlock;
-import net.minecraft.client.player.LocalPlayer;
+import dev.ftb.ftbsbc.dimensions.DimensionsClient;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -40,7 +40,7 @@ public class UpdateDimensionsList extends BaseS2CMessage {
 	@Override
 	public void handle(NetworkManager.PacketContext context) {
 		context.queue(() -> {
-			Set<ResourceKey<Level>> levels = ((LocalPlayer) context.getPlayer()).connection.levels();
+			Set<ResourceKey<Level>> levels = DimensionsClient.playerLevels(context.getPlayer());
 			if (add) levels.add(dimension);
 			else levels.remove(dimension);
 		});
