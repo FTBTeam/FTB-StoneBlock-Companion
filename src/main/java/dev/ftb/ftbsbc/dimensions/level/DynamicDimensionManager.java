@@ -2,6 +2,7 @@ package dev.ftb.ftbsbc.dimensions.level;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.mojang.math.Vector3d;
 import com.mojang.serialization.Lifecycle;
 import dev.ftb.ftbsbc.FTBStoneBlock;
 import dev.ftb.ftbsbc.dimensions.level.stoneblock.StoneblockChunkGenerator;
@@ -155,7 +156,20 @@ public class DynamicDimensionManager {
 				BlockPos lobbySpawnPos = DimensionStorage.get().getLobbySpawnPos();
 				player.teleportTo(level, lobbySpawnPos.getX() + .5D, lobbySpawnPos.getY() + .01D, lobbySpawnPos.getZ() + .5D, player.getYRot(), player.getXRot());
 			} else {
-				player.teleportTo(level, 0.5D, 0.1D, 0.5D, player.getYRot(), player.getXRot());
+				Vector3d vec = new Vector3d(0.5D, 1.1D, 0.5D);
+				BlockPos respawnPosition = player.getRespawnPosition();
+				if (player.getRespawnDimension().equals(key) && respawnPosition != null) {
+					vec.add(new Vector3d(respawnPosition.getX(), respawnPosition.getY(), respawnPosition.getZ()));
+				} else {
+					BlockPos levelSharedSpawn = DimensionStorage.get().getDimensionSpawnLocations(level.dimension().location());
+					if (levelSharedSpawn == null) {
+						levelSharedSpawn = BlockPos.ZERO;
+					}
+
+					vec.add(new Vector3d(levelSharedSpawn.getX(), levelSharedSpawn.getY(), levelSharedSpawn.getZ()));
+				}
+
+				player.teleportTo(level, vec.x, vec.y, vec.z, player.getYRot(), player.getXRot());
 			}
 			return true;
 		} else {

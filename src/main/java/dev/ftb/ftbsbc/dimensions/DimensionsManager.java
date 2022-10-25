@@ -5,14 +5,18 @@ import dev.ftb.ftbsbc.FTBStoneBlock;
 import dev.ftb.ftbsbc.dimensions.level.DimensionCreatedEvent;
 import dev.ftb.ftbsbc.dimensions.level.DimensionStorage;
 import dev.ftb.ftbsbc.dimensions.level.DynamicDimensionManager;
+import dev.ftb.ftbsbc.dimensions.level.stoneblock.StartStructure;
+import dev.ftb.ftbsbc.dimensions.level.stoneblock.StartStructurePiece;
 import dev.ftb.mods.ftbteams.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.data.Team;
 import dev.ftb.mods.ftbteams.data.TeamType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -69,12 +73,31 @@ public enum DimensionsManager {
         // Create the dim and store the key
         String dimensionName = generateDimensionName();
         ResourceKey<Level> key = DimensionStorage.get().putDimension(playerTeam, dimensionName);
-        DynamicDimensionManager.create(player.server, key, prebuiltLocation);
+
+        ServerLevel serverLevel = DynamicDimensionManager.create(player.server, key, prebuiltLocation);
+        // Attempt to load the structure and get the spawn location of the island / structure
+        var spawnPoint = player.server.getStructureManager().get(prebuiltLocation).map(structure -> {
+            BlockPos blockPos = StartStructure.locateSpawn(structure, StartStructurePiece.makeSettings(structure))
+                    .offset(-(structure.getSize().getX() / 2), 1, -(structure.getSize().getZ() / 2));
+
+            BlockPos dimensionSpawnLocations = DimensionStorage.get().getDimensionSpawnLocations(serverLevel.getLevel().dimension().location());
+            if (dimensionSpawnLocations == null) {
+                DimensionStorage.get().addDimensionSpawn(serverLevel.getLevel().dimension().location(), blockPos);
+                FTBStoneBlock.LOGGER.info("Adding spawn to dim storage");
+            }
+
+            return blockPos;
+        }).orElse(BlockPos.ZERO);
+
         DynamicDimensionManager.teleport(player, key);
-        player.setRespawnPosition(key, BlockPos.ZERO, 0.0F, true, false);
+        player.setRespawnPosition(key, spawnPoint, 0, true, false);
 
         player.getInventory().clearContent();
-        player.heal(player.getMaxHealth() - player.getHealth());
+        player.heal(player.getMaxHealth());
+        FoodData foodData = player.getFoodData();
+        foodData.setExhaustion(0);
+        foodData.setFoodLevel(20);
+        foodData.setSaturation(5.0f);
 
         MinecraftForge.EVENT_BUS.post(new DimensionCreatedEvent(dimensionName, playerTeam, player, player.server.getLevel(key)));
     }

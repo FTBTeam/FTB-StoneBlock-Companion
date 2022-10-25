@@ -51,6 +51,8 @@ dependencies {
     modImplementation "dev.ftb.mods:ftb-chunks-forge:${chunks_version}"
 
     modImplementation ("curse.maven:jade-324717:${jade_version}")
+
+    modRuntimeOnly "dev.ftb.mods:ftb-essentials:${essentials_version}"
 }
 
 processResources {

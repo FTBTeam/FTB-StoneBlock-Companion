@@ -77,7 +77,7 @@ public class StartStructure extends StructureFeature<JigsawConfiguration> {
 
 		for (var info : template.filterBlocks(BlockPos.ZERO, placeSettings, Blocks.STRUCTURE_BLOCK)) {
 			if (info.nbt != null && StructureMode.valueOf(info.nbt.getString("mode")) == StructureMode.DATA) {
-				FTBStoneBlock.LOGGER.info("Found data block at " + info.pos + " with data " + info.nbt.getString("metadata"));
+				FTBStoneBlock.LOGGER.info("Found data block at [{}] with data [{}]", info.pos, info.nbt.getString("metadata"));
 
 				if (info.nbt.getString("metadata").equalsIgnoreCase("spawn_point")) {
 					spawnPos = info.pos;

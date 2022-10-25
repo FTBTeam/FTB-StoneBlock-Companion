@@ -1,6 +1,7 @@
 package dev.ftb.ftbsbc.dimensions.level.stoneblock;
 
 import com.google.common.collect.ImmutableList;
+import dev.ftb.ftbsbc.FTBStoneBlock;
 import dev.ftb.ftbsbc.dimensions.DimensionsRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -8,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -46,9 +48,13 @@ public class StartStructurePiece extends TemplateStructurePiece {
 	@Override
 	protected void handleDataMarker(String id, BlockPos pos, ServerLevelAccessor level, Random random, BoundingBox boundingBox) {
 		if (id.equalsIgnoreCase("spawn_point")) {
-			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
-			level.getLevel().setDefaultSpawnPos(pos, 0);
+			level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+//			level.getLevel().setDefaultSpawnPos(pos.above(1), 0);
 			level.getLevel().getServer().getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS).set(0, level.getLevel().getServer());
+
+			FTBStoneBlock.LOGGER.info("Found valid spawn marker at [{}] and setting for [{}]", pos, level.getLevel().dimension());
+		} else {
+			FTBStoneBlock.LOGGER.warn("No spawn_point tag found on data marker");
 		}
 	}
 }
