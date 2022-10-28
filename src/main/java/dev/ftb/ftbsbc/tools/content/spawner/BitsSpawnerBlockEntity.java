@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class BitsSpawnerBlockEntity extends BlockEntity {
 
     public double spin;
     public double oSpin;
-    private int requiredPlayerRange = 16;
+    private final int requiredPlayerRange = 16;
     private final Random random = new Random();
 
     private Entity displayEntity;
@@ -75,21 +76,44 @@ public class BitsSpawnerBlockEntity extends BlockEntity {
         }
 
         for (int i = 0; i < Math.max(SpawnerDataKjs.minSpawnAmount, random.nextInt(SpawnerDataKjs.maxSpawnAmount)); i ++) {
-            int x = pos.getX() + (random.nextInt(this.spawnRange) * (random.nextFloat() > 0.5 ? -1 : 1)),
-                    y = pos.getY() + 1,
-                    z = pos.getZ() + (random.nextInt(this.spawnRange) * (random.nextFloat() > 0.5 ? -1 : 1));
+            int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+
+            // Attempt to find a valid spawn location up to 5 times
+            boolean validLocationFound = false;
+            for (int a = 0; a < 5; a ++) {
+                x = pos.getX() + (random.nextInt(this.spawnRange) * (random.nextFloat() > 0.5 ? -1 : 1));
+                y = pos.getY() + 1;
+                z = pos.getZ() + (random.nextInt(this.spawnRange) * (random.nextFloat() > 0.5 ? -1 : 1));
+                var blockPos = new BlockPos(x, y, z);
+
+                if (!level.getBlockState(blockPos).isAir() && !level.getBlockState(blockPos.above()).isAir()) {
+                    validLocationFound = true;
+                    break;
+                }
+            }
+
+            if (!validLocationFound) {
+                continue;
+            }
 
             CompoundTag compound = new CompoundTag();
             List<SpawnerDataKjs.SpawnableEntity> validMobsForBiome = getValidMobsForBiome();
             SpawnerDataKjs.SpawnableEntity entityId = validMobsForBiome.get(random.nextInt(validMobsForBiome.size()));
 
             compound.putString("id", entityId.entityId().toString());
+            final int tmpX = x, tmpY = y, tmpZ = z;
             Entity entity = EntityType.loadEntityRecursive(compound, level, e -> {
-                e.moveTo(x, y, z);
+                e.moveTo(tmpX, tmpY, tmpZ);
                 return e;
             });
 
             if (entity == null) {
+                this.spawnDelay = delay();
+                return;
+            }
+
+            AABB aabb = new AABB(new BlockPos(x, y, z)).inflate(this.spawnRange);
+            if (level.getEntitiesOfClass(entity.getClass(), aabb).size() > 20) {
                 this.spawnDelay = delay();
                 return;
             }
