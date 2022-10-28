@@ -7,39 +7,46 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.ftb.ftbsbc.dimensions.DimensionsClient;
 import dev.ftb.ftbsbc.dimensions.DimensionsManager;
+import dev.ftb.ftbsbc.dimensions.arguments.DimensionCommandArgument;
+import dev.ftb.ftbsbc.dimensions.arguments.PrebuiltCommandArgument;
 import dev.ftb.ftbsbc.dimensions.kubejs.StoneBlockDataKjs;
+import dev.ftb.ftbsbc.dimensions.level.ArchivedDimension;
 import dev.ftb.ftbsbc.dimensions.level.DimensionStorage;
 import dev.ftb.ftbsbc.dimensions.level.DynamicDimensionManager;
-import dev.ftb.ftbsbc.dimensions.prebuilt.PrebuiltCommandArgument;
 import dev.ftb.mods.ftbteams.FTBTeamsAPI;
+import dev.ftb.mods.ftbteams.data.PartyTeam;
 import dev.ftb.mods.ftbteams.data.Team;
 import dev.ftb.mods.ftbteams.data.TeamArgument;
 import dev.ftb.mods.ftbteams.data.TeamType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.EmptyArgumentSerializer;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class FTBStoneBlockCommands {
     public static final Logger LOGGER = LogManager.getLogger();
     private static final LevelResource EXPORT_PATH = new LevelResource("stoneblock-export.png");
 
     public static final DynamicCommandExceptionType NOT_PARTY_TEAM = new DynamicCommandExceptionType((object) -> new TextComponent("[%s] is not a party team...".formatted(object)));
+    public static final DynamicCommandExceptionType DIM_MISSING = new DynamicCommandExceptionType((object) -> new TextComponent("[%s] can not be found".formatted(object)));
     public static final DynamicCommandExceptionType NO_DIM = new DynamicCommandExceptionType((object) -> new TextComponent("No dimension found for %s".formatted(object)));
 
     public static void setup() {
         ArgumentTypes.register(FTBStoneBlock.MOD_ID + ":prebuilt", PrebuiltCommandArgument.class, new EmptyArgumentSerializer<>(PrebuiltCommandArgument::create));
+        ArgumentTypes.register(FTBStoneBlock.MOD_ID + ":archived", DimensionCommandArgument.class, new EmptyArgumentSerializer<>(DimensionCommandArgument::create));
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> commandDispatcher) {
@@ -61,6 +68,15 @@ public class FTBStoneBlockCommands {
                         .requires(source -> source.hasPermission(2))
                         .executes(context -> listArchived(context.getSource()))
                 )
+                .then(Commands.literal("prune-all").executes(context -> prune(context.getSource())))
+                .then(Commands.literal("prune").then(Commands.argument("dimension", DimensionCommandArgument.create()).executes(context -> prune(context.getSource(), DimensionCommandArgument.get(context, "dimension")))))
+                .then(Commands.literal("restore")
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .then(Commands.argument("dimension", DimensionCommandArgument.create())
+                                        .executes(context -> restore(context.getSource(), DimensionCommandArgument.get(context, "dimension"), EntityArgument.getPlayer(context, "player")))
+                                )
+                        )
+                )
                 .then(Commands.literal("lobby").executes(context -> lobby(context.getSource())))
                 .then(Commands.literal("home").executes(context -> home(context.getSource())))
         );
@@ -68,15 +84,65 @@ public class FTBStoneBlockCommands {
         commandDispatcher.register(Commands.literal("ftbstoneblock").redirect(commands));
     }
 
+    private static int restore(CommandSourceStack source, ArchivedDimension dimension, ServerPlayer player) throws CommandSyntaxException {
+        PartyTeam party = FTBTeamsAPI.getManager().createParty(player, player.getName().getString() + " Party", false).getValue();
+        ResourceKey<Level> levelResourceKey = DimensionStorage.get().putDimension(party, dimension.dimensionName());
+
+        // Remove the dimension from the archived dims
+        DimensionStorage.get().getArchivedDimensions().remove(dimension);
+        DimensionStorage.get().setDirty();
+
+        DynamicDimensionManager.teleport(player, levelResourceKey);
+
+        source.sendSuccess(new TextComponent("Successfully restored dimension").withStyle(ChatFormatting.GREEN), false);
+        return 0;
+    }
+
+    private static int prune(CommandSourceStack source, ArchivedDimension dimension) throws CommandSyntaxException {
+        List<ArchivedDimension> archivedDimensions = DimensionStorage.get().getArchivedDimensions();
+        if (!archivedDimensions.contains(dimension)) {
+            throw DIM_MISSING.create(dimension.dimensionName());
+        }
+
+        DynamicDimensionManager.destroy(source.getServer(), ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension.dimensionName()));
+
+        archivedDimensions.remove(dimension);
+        DimensionStorage.get().setDirty();
+
+        source.sendSuccess(new TextComponent("Successfully pruned %s".formatted(dimension.dimensionName())).withStyle(ChatFormatting.GREEN), false);
+        return 0;
+    }
+
+    private static int prune(CommandSourceStack source) {
+        MinecraftServer server = source.getServer();
+        List<ArchivedDimension> archivedDimensions = DimensionStorage.get().getArchivedDimensions();
+        int size = archivedDimensions.size();
+
+        for (ArchivedDimension e : archivedDimensions) {
+            DynamicDimensionManager.destroy(server, ResourceKey.create(Registry.DIMENSION_REGISTRY, e.dimensionName()));
+        }
+
+        DimensionStorage.get().getArchivedDimensions().clear();
+        DimensionStorage.get().setDirty();
+
+        source.sendSuccess(new TextComponent("Successfully pruned %s dimensions".formatted(size)).withStyle(ChatFormatting.GREEN), false);
+
+        return 0;
+    }
+
     private static int listArchived(CommandSourceStack source) {
-        HashMap<String, ResourceLocation> archivedDimensions = DimensionStorage.get().getArchivedDimensions();
+        List<ArchivedDimension> archivedDimensions = DimensionStorage.get().getArchivedDimensions();
         if (archivedDimensions.isEmpty()) {
             source.sendFailure(new TextComponent("No archived dimensions available"));
             return -1;
         }
 
-        for (Map.Entry<String, ResourceLocation> dim : archivedDimensions.entrySet()) {
-            source.sendSuccess(new TextComponent("[old-team-id=%s] [owner=%s] [dim-name=%s]".formatted(dim.getKey().split("-")[0], dim.getKey().split("-")[1], dim.getValue().toString())), false);
+        for (ArchivedDimension archivedDimension : archivedDimensions) {
+            source.sendSuccess(new TextComponent("%s: [team=%s] [owner=%s]".formatted(
+                    archivedDimension.dimensionName(),
+                    archivedDimension.teamName(),
+                    archivedDimension.teamOwner()
+            )), false);
         }
 
         return 0;

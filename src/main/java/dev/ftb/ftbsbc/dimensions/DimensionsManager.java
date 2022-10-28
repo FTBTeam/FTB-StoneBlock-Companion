@@ -71,7 +71,12 @@ public enum DimensionsManager {
         }
 
         // Create the dim and store the key
-        String dimensionName = generateDimensionName();
+        List<String> existing = DimensionStorage.get().getTeamToDimension().values().stream().map(e -> e.getPath().split("/")[1]).toList();
+
+        String dimensionName;
+        // Legit the simplest way of doing collision detection.
+        while (existing.contains(dimensionName = generateDimensionName())) {}
+
         ResourceKey<Level> key = DimensionStorage.get().putDimension(playerTeam, dimensionName);
 
         ServerLevel serverLevel = DynamicDimensionManager.create(player.server, key, prebuiltLocation);

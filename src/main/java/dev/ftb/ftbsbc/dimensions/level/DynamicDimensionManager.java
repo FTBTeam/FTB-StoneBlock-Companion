@@ -24,7 +24,11 @@ import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
+import org.apache.commons.io.FileUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -91,6 +95,7 @@ public class DynamicDimensionManager {
 	public static ServerLevel destroy(MinecraftServer server, ResourceKey<Level> key) {
 		WorldGenSettings worldGenSettings = server.getWorldData().worldGenSettings();
 		ServerLevel overworld = server.getLevel(Level.OVERWORLD);
+		Path dimensionPath = server.storageSource.getDimensionPath(key);
 
 		ServerLevel removedLevel = server.forgeGetWorldMap().remove(key);
 
@@ -139,6 +144,14 @@ public class DynamicDimensionManager {
 
 			if (oldKey != null && dimension != null && oldLevelKey != key) {
 				newRegistry.register(oldKey, dimension, oldRegistry.lifecycle(dimension));
+			}
+		}
+
+		if (Files.exists(dimensionPath)) {
+			try {
+				FileUtils.deleteDirectory(dimensionPath.toFile());
+			} catch (IOException e) {
+				FTBStoneBlock.LOGGER.error("Failed to delete dimension file for {} at {}", key, dimensionPath, e);
 			}
 		}
 

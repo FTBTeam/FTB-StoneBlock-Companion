@@ -94,7 +94,7 @@ public class DimensionsMain {
 
         if (!level.dimension().location().equals(OVERWORLD) || StoneBlockDataKjs.lobbyStructure == null || DimensionStorage.get().isLobbySpawned()) {
             if (StoneBlockDataKjs.lobbyStructure == null) {
-                System.out.println("Lobby structure not defined in kubejs");
+                LOGGER.warn("Lobby structure not defined in kubejs");
             }
             return;
         }

@@ -49,7 +49,6 @@ public class StartStructurePiece extends TemplateStructurePiece {
 	protected void handleDataMarker(String id, BlockPos pos, ServerLevelAccessor level, Random random, BoundingBox boundingBox) {
 		if (id.equalsIgnoreCase("spawn_point")) {
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-//			level.getLevel().setDefaultSpawnPos(pos.above(1), 0);
 			level.getLevel().getServer().getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS).set(0, level.getLevel().getServer());
 
 			FTBStoneBlock.LOGGER.info("Found valid spawn marker at [{}] and setting for [{}]", pos, level.getLevel().dimension());

@@ -22,15 +22,12 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
     public static final ResourceLocation FTBSBTOOLS_JEI = new ResourceLocation(FTBStoneBlock.MOD_ID, "jei");
-    public static HashSet<RegistryObject<? extends Item>> HAMMERS = new HashSet<>() {{
+    public static HashSet<RegistryObject<? extends Item>> HAMMERS = new LinkedHashSet<>() {{
         this.add(ToolsRegistry.STONE_HAMMER);
         this.add(ToolsRegistry.IRON_HAMMER);
         this.add(ToolsRegistry.GOLD_HAMMER);
@@ -55,7 +52,6 @@ public class JEIPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration r) {
         r.addRecipeCategories(new HammerCategory(r.getJeiHelpers().getGuiHelper()));
         r.addRecipeCategories(new CrookCategory(r.getJeiHelpers().getGuiHelper()));
-
         r.addRecipeCategories(new CauldronCategory(r.getJeiHelpers().getGuiHelper()));
     }
 

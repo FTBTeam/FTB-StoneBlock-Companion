@@ -116,6 +116,7 @@ public class ToolsData {
 
             this.addItem(ToolsRegistry.FIRE_PLOW, "Fire Plow");
             this.addBlock(PortalRegistry.SB_PORTAL_BLOCK, "StoneBlock Portal");
+            this.addBlock(ToolsRegistry.BITS_SPAWNER, "Bits Spawner");
 
             this.add("screens.ftbsbc.select_start_group", "Select a group");
             this.add("screens.ftbsbc.select_start", "Select a start");

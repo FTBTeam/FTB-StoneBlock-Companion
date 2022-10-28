@@ -23,6 +23,11 @@ public class HammerItem extends DiggerItem {
     }
 
     @Override
+    public float getDestroySpeed(ItemStack arg, BlockState arg2) {
+        return arg2.is(BlockTags.MINEABLE_WITH_PICKAXE) || arg2.is(BlockTags.MINEABLE_WITH_SHOVEL) ? this.speed : 1.0f;
+    }
+
+    @Override
     public void appendHoverText(ItemStack arg, @Nullable Level arg2, List<Component> list, TooltipFlag arg3) {
         list.add(new TranslatableComponent("ftbsbc.tooltip.hammers").gray());
     }

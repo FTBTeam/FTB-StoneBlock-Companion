@@ -2,7 +2,7 @@
 5f184375ae9bff561ae12f5600648d03ab07e347 assets/ftbsbc/blockstates/gold_auto_hammer.json
 e7faedbada840b9e07f65443e720f6d7558afe08 assets/ftbsbc/blockstates/iron_auto_hammer.json
 a3065d1ad65360bf91cee3a6c438cc89cb397f41 assets/ftbsbc/blockstates/netherite_auto_hammer.json
-6982f3b96c7cac1a3e8383ed75420aa2c07ea543 assets/ftbsbc/lang/en_us.json
+bf3e4c5ea4d1bb7211d4a2d4e3b6c477ffdb4663 assets/ftbsbc/lang/en_us.json
 1b5f5af2d0edfb69bb4b2f0496f17fdd1822b656 assets/ftbsbc/models/item/diamond_auto_hammer.json
 18956cb9c1701fba6323998a2c7a1cadc3b2cf08 assets/ftbsbc/models/item/diamond_hammer.json
 878b9a6bca1e3cacaba0c85cda0bb12ef994a7b8 assets/ftbsbc/models/item/fire_plow.json
@@ -16,7 +16,7 @@ f8982425d88abf29efe6a95c4f1b8fe0ed76db96 assets/ftbsbc/models/item/stone_crook.j
 8dd4c5b03260175a1a2a43cadc0fdb6ffc315390 assets/ftbsbc/models/item/stone_hammer.json
 6fab203a3c6db5d107baa99474ffed2baaa2d8c9 assets/ftbsbc/models/item/stone_rod.json
 41f0f1be6bd2e7a213e8dc8b32b2858b92e82216 data/forge/loot_modifiers/global_loot_modifiers.json
-6a7a4ceee65220537874c53e68d00facbddce20d data/forge/tags/blocks/needs_wood_tool.json
+7d2f67734ef0f78a53657f978128cbc71421f654 data/forge/tags/blocks/needs_wood_tool.json
 adade8b1a217559936dfb41e3c6efa4168725b1b data/ftbsbc/advancements/recipes/ftbsbc/diamond_auto_hammer.json
 d5e2a46c5d45bef349a42a3babf367035d6cffd8 data/ftbsbc/advancements/recipes/ftbsbc/diamond_hammer.json
 6ec45b28b348338090e0adf219f05cf60448c626 data/ftbsbc/advancements/recipes/ftbsbc/fire_plow.json
@@ -47,7 +47,7 @@ be7dac090c626d25769d3b65dde54d50d6f8eaa6 data/ftbsbc/recipes/gold_hammer.json
 370776a7782323737000dce33b424245840e5234 data/ftbsbc/recipes/stone_crook.json
 b7582628e6a3e19743d70658bf01546137026ae5 data/ftbsbc/recipes/stone_hammer.json
 e2788cfa74ad0b860359ef1607608d1a2ea714ba data/ftbsbc/recipes/stone_rod.json
-6a7a4ceee65220537874c53e68d00facbddce20d data/ftbsbc/tags/blocks/auto_hammers.json
+7d2f67734ef0f78a53657f978128cbc71421f654 data/ftbsbc/tags/blocks/auto_hammers.json
 dd72e0c58c387b92c2fd864fcab2560b47d0d32f data/ftbsbc/tags/items/crooks.json
 0a798f3cc8c5fa48ca42ee71b7ab54cf56989aef data/ftbsbc/tags/items/hammers.json
-6a7a4ceee65220537874c53e68d00facbddce20d data/minecraft/tags/blocks/mineable/pickaxe.json
+7d2f67734ef0f78a53657f978128cbc71421f654 data/minecraft/tags/blocks/mineable/pickaxe.json

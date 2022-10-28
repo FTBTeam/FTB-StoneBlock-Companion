@@ -54,6 +54,7 @@ public class ToolsMain {
 
     public static void setup() {
         LOGGER.info("Running Tools init");
+
         // Cauldron Interactions
         for (Block block : ForgeRegistries.BLOCKS) {
             if (block instanceof LeavesBlock || block instanceof SaplingBlock) {

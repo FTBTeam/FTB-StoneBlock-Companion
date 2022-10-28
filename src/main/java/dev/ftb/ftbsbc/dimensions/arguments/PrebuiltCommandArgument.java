@@ -1,4 +1,4 @@
-package dev.ftb.ftbsbc.dimensions.prebuilt;
+package dev.ftb.ftbsbc.dimensions.arguments;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.ftb.ftbsbc.dimensions.kubejs.StoneBlockDataKjs;
+import dev.ftb.ftbsbc.dimensions.prebuilt.PrebuiltStructure;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.TextComponent;
