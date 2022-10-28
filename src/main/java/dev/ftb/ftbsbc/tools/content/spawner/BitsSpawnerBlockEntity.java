@@ -86,7 +86,7 @@ public class BitsSpawnerBlockEntity extends BlockEntity {
                 z = pos.getZ() + (random.nextInt(this.spawnRange) * (random.nextFloat() > 0.5 ? -1 : 1));
                 var blockPos = new BlockPos(x, y, z);
 
-                if (!level.getBlockState(blockPos).isAir() && !level.getBlockState(blockPos.above()).isAir()) {
+                if (level.getBlockState(blockPos).isAir() && level.getBlockState(blockPos.above()).isAir()) {
                     validLocationFound = true;
                     break;
                 }
