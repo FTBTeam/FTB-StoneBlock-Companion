@@ -231,7 +231,7 @@ public class ToolsData {
                     ToolsRegistry.NETHERITE_AUTO_HAMMER.get()
             ).toArray(Block[]::new);
 
-            this.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(blocks);
+            this.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(blocks).add(ToolsRegistry.BITS_SPAWNER.get());
             this.tag(Tags.Blocks.NEEDS_WOOD_TOOL).add(blocks);
             this.tag(ToolsTags.Blocks.AUTO_HAMMERS).add(blocks);
         }

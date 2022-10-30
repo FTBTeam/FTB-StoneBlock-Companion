@@ -16,7 +16,7 @@ f8982425d88abf29efe6a95c4f1b8fe0ed76db96 assets/ftbsbc/models/item/stone_crook.j
 8dd4c5b03260175a1a2a43cadc0fdb6ffc315390 assets/ftbsbc/models/item/stone_hammer.json
 6fab203a3c6db5d107baa99474ffed2baaa2d8c9 assets/ftbsbc/models/item/stone_rod.json
 41f0f1be6bd2e7a213e8dc8b32b2858b92e82216 data/forge/loot_modifiers/global_loot_modifiers.json
-7d2f67734ef0f78a53657f978128cbc71421f654 data/forge/tags/blocks/needs_wood_tool.json
+8679ba008a9b76d6d8fa70dfa73505e35220b009 data/forge/tags/blocks/needs_wood_tool.json
 adade8b1a217559936dfb41e3c6efa4168725b1b data/ftbsbc/advancements/recipes/ftbsbc/diamond_auto_hammer.json
 d5e2a46c5d45bef349a42a3babf367035d6cffd8 data/ftbsbc/advancements/recipes/ftbsbc/diamond_hammer.json
 6ec45b28b348338090e0adf219f05cf60448c626 data/ftbsbc/advancements/recipes/ftbsbc/fire_plow.json
@@ -47,7 +47,7 @@ be7dac090c626d25769d3b65dde54d50d6f8eaa6 data/ftbsbc/recipes/gold_hammer.json
 370776a7782323737000dce33b424245840e5234 data/ftbsbc/recipes/stone_crook.json
 b7582628e6a3e19743d70658bf01546137026ae5 data/ftbsbc/recipes/stone_hammer.json
 e2788cfa74ad0b860359ef1607608d1a2ea714ba data/ftbsbc/recipes/stone_rod.json
-7d2f67734ef0f78a53657f978128cbc71421f654 data/ftbsbc/tags/blocks/auto_hammers.json
+8679ba008a9b76d6d8fa70dfa73505e35220b009 data/ftbsbc/tags/blocks/auto_hammers.json
 dd72e0c58c387b92c2fd864fcab2560b47d0d32f data/ftbsbc/tags/items/crooks.json
 0a798f3cc8c5fa48ca42ee71b7ab54cf56989aef data/ftbsbc/tags/items/hammers.json
-7d2f67734ef0f78a53657f978128cbc71421f654 data/minecraft/tags/blocks/mineable/pickaxe.json
+573cadce6abe2cb3f3e40d9a6641861304a391eb data/minecraft/tags/blocks/mineable/pickaxe.json

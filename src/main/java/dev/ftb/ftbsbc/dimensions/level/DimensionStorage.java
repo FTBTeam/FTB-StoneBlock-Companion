@@ -21,6 +21,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
@@ -42,14 +43,16 @@ public class DimensionStorage extends SavedData {
         DimensionDataStorage dataStorage = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD)
                 .getDataStorage();
 
+        // I messed up and used a file name with : in it which broke windows. This was then shipped... This fixes that mistake, for 99.9% of users
+        // this will never be run. Annoyingly we always have to do this check but, on the plus side, this method isn't called much
         String oldName = new ResourceLocation(FTBStoneBlock.MOD_ID, "dimension_store").toString();
         File dataFile = dataStorage.getDataFile(oldName);
         if (dataFile.exists()) {
-            try {
-                byte[] bytes = Files.readAllBytes(dataFile.toPath());
+            try (var fileInput = new FileInputStream(dataFile)) {
+                byte[] bytes = fileInput.readAllBytes();
                 File newDataFile = dataStorage.getDataFile(SAVE_NAME);
                 Files.write(newDataFile.toPath(), bytes);
-                Files.deleteIfExists(dataFile.toPath());
+                dataFile.delete();
             } catch (IOException e) {
                 LOGGER.error("Failed to migrate data to new file", e);
             }

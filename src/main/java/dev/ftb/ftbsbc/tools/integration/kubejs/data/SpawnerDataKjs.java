@@ -32,9 +32,13 @@ public class SpawnerDataKjs {
 
         public Builder() {}
 
-        public Builder addEntity(ResourceLocation entityType, ResourceLocation biome) {
-            TagKey<Biome> biomeTagKey = TagKey.create(Registry.BIOME_REGISTRY, biome);
-            entities.add(new SpawnableEntity(entityType, biomeTagKey));
+        public Builder addEntity(ResourceLocation entityType, @Nullable ResourceLocation biome) {
+            if (biome != null) {
+                TagKey<Biome> biomeTagKey = TagKey.create(Registry.BIOME_REGISTRY, biome);
+                entities.add(new SpawnableEntity(entityType, biomeTagKey));
+            } else {
+                entities.add(new SpawnableEntity(entityType, null));
+            }
             return this;
         }
 

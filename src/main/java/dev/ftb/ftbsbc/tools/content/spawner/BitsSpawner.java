@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 
 public class BitsSpawner extends SpawnerBlock {
     public BitsSpawner() {
-        super(Properties.copy(Blocks.SPAWNER));
+        super(Properties.copy(Blocks.SPAWNER).strength(50.0f, 1200.0f));
     }
 
     @Override

@@ -13,6 +13,7 @@ import dev.ftb.ftbsbc.tools.recipies.HammerRecipe;
 import dev.ftb.ftbsbc.tools.recipies.NoInventory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -43,7 +44,7 @@ import java.util.concurrent.ExecutionException;
 public class HammerOverlay {
     private static final ResourceLocation TEXTURE = new ResourceLocation(FTBStoneBlock.MOD_ID, "textures/hammer_convert.png");
 
-    private static int tick = 0;
+    private static float tick = 0;
     private static int index = 0;
 
     public static Cache<Block, List<ItemStack>> recipeCacheResult = CacheBuilder.newBuilder()
@@ -92,7 +93,7 @@ public class HammerOverlay {
 
         Window window = Minecraft.getInstance().getWindow();
         int x = (window.getGuiScaledWidth() / 2) - (58 / 2);
-        int y = window.getGuiScaledHeight() / 2 + 10;
+        int y = window.getGuiScaledHeight() - 75;
 
         var pose = event.getMatrixStack();
         pose.pushPose();
@@ -102,16 +103,19 @@ public class HammerOverlay {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.setShaderTexture(0, TEXTURE);
         Screen.blit(pose, x, y, 0, 0, 58, 16, 58, 32);
-        Screen.blit(pose, x, y, (float) 0, 16F, (int) (((float) tick / 300) * 58f), 16, 58, 32);
-        pose.popPose();
 
-        tick ++;
-        if (tick % 150 == 0) {
-            index ++;
+        MultiPlayerGameMode gameMode = Minecraft.getInstance().gameMode;
+        if (gameMode != null) {
+            // 17 (start) -> 40 (end)
+            Screen.blit(pose, x, y, (float) 0, 16F, 17 + (int) (gameMode.destroyProgress * 23f), 16, 58, 32);
         }
 
-        if (tick > 300) {
+        pose.popPose();
+
+        tick += Minecraft.getInstance().getDeltaFrameTime();
+        if (tick > 60) {
             tick = 0;
+            index ++;
         }
 
         if (index >= recipeResults.size()) {

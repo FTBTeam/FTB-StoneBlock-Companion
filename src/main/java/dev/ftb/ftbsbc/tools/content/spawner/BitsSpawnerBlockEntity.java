@@ -13,9 +13,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
@@ -27,6 +29,8 @@ import java.util.Random;
  * Big old copy and paste from vanilla
  */
 public class BitsSpawnerBlockEntity extends BlockEntity {
+    private static final EntityTypeTest<Entity, Mob> MOB_TEST = EntityTypeTest.forClass(Mob.class);
+
     private short spawnDelay = 20;
     private short minDelay = 50;
     private short maxDelay = 300;
@@ -75,6 +79,11 @@ public class BitsSpawnerBlockEntity extends BlockEntity {
             return;
         }
 
+        if (level.getBrightness(LightLayer.BLOCK, pos) >= 13) {
+            this.spawnDelay = delay();
+            return;
+        }
+
         for (int i = 0; i < Math.max(SpawnerDataKjs.minSpawnAmount, random.nextInt(SpawnerDataKjs.maxSpawnAmount)); i ++) {
             int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 
@@ -98,6 +107,11 @@ public class BitsSpawnerBlockEntity extends BlockEntity {
 
             CompoundTag compound = new CompoundTag();
             List<SpawnerDataKjs.SpawnableEntity> validMobsForBiome = getValidMobsForBiome();
+            if (validMobsForBiome.size() == 0) {
+                this.spawnDelay = delay();
+                return;
+            }
+
             SpawnerDataKjs.SpawnableEntity entityId = validMobsForBiome.get(random.nextInt(validMobsForBiome.size()));
 
             compound.putString("id", entityId.entityId().toString());
@@ -112,8 +126,10 @@ public class BitsSpawnerBlockEntity extends BlockEntity {
                 return;
             }
 
-            AABB aabb = new AABB(new BlockPos(x, y, z)).inflate(this.spawnRange);
-            if (level.getEntitiesOfClass(entity.getClass(), aabb).size() > 20) {
+            // Add 5 to account for mobs wondering
+            AABB aabb = new AABB(new BlockPos(x, y, z)).inflate(this.spawnRange + 5);
+            // Don't spawn mobs when more than 20 exist in the area
+            if (level.getEntities(MOB_TEST, aabb, Entity::isAlive).size() >= 20) {
                 this.spawnDelay = delay();
                 return;
             }
