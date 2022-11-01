@@ -93,7 +93,7 @@ public class HammerOverlay {
 
         Window window = Minecraft.getInstance().getWindow();
         int x = (window.getGuiScaledWidth() / 2) - (58 / 2);
-        int y = window.getGuiScaledHeight() - 75;
+        int y = window.getGuiScaledHeight() - 80;
 
         var pose = event.getMatrixStack();
         pose.pushPose();
