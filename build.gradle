@@ -1,6 +1,7 @@
 plugins {
     id "dev.architectury.loom" version "0.12.0-SNAPSHOT"
     id "maven-publish"
+	  id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
@@ -8,7 +9,7 @@ sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 def ENV = System.getenv()
 
 archivesBaseName = project.archives_base_name
-version = "${project.mod_version}.build-${ENV.GITHUB_RUN_NUMBER ?: "preview"}+mc${project.minecraft_version}"
+version = "${project.mod_version}+mc${project.minecraft_version}"
 group = project.maven_group
 
 loom {
@@ -86,24 +87,73 @@ jar {
     }
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                builtBy remapJar
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-        }
-    }
+def relType = "release"
+if (ENV.TAG != null) {
+	if (ENV.TAG.contains("alpha")) {
+		relType = "alpha"
+	} else if (ENV.TAG.contains("beta")) {
+		relType = "beta"
+	}
+}
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-    }
+if (ENV.CURSEFORGE_KEY) {
+	curseforge {
+		apiKey = ENV.CURSEFORGE_KEY
+		project {
+			id = project.curseforge_id
+			releaseType = relType
+			addGameVersion "Forge"
+			addGameVersion project.minecraft_version
+			mainArtifact(remapJar.archiveFile)
+			relations {
+				requiredDependency 'ftb-library-forge'
+				optionalDependency 'jade'
+			}
+			changelog = ENV.CHANGELOG  // expected to exist if ENV.CURSEFORGE does
+			changelogType = 'markdown'
+		}
+	}
+}
+
+def ftbURL = "https://maven.ftb.dev/release"
+def sapsURL = "https://maven.saps.dev/minecraft"
+def mavenVersion = project.version
+if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
+	ftbURL = "https://maven.ftb.dev/snapshot"
+	mavenVersion += "-SNAPSHOT"
+}
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			groupId = project.group
+      artifactId = project.archivesBaseName
+      version = mavenVersion
+
+			artifact(remapJar) {
+				builtBy remapJar
+			}
+		}
+	}
+
+	repositories {
+		if (ENV.FTB_MAVEN_TOKEN) {
+			maven {
+				url ftbURL
+				credentials {
+					username = "ftb"
+					password = "${ENV.FTB_MAVEN_TOKEN}"
+				}
+			}
+		}
+
+		if (ENV.SAPS_TOKEN) {
+			maven {
+				url sapsURL
+				credentials {
+					username = "ftb"
+					password = "${ENV.SAPS_TOKEN}"
+				}
+			}
+		}
+	}
 }
