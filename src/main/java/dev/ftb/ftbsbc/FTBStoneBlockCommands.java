@@ -86,11 +86,11 @@ public class FTBStoneBlockCommands {
 
     private static int restore(CommandSourceStack source, ArchivedDimension dimension, ServerPlayer player) throws CommandSyntaxException {
         PartyTeam party = FTBTeamsAPI.getManager().createParty(player, player.getName().getString() + " Party", false).getValue();
-        ResourceKey<Level> levelResourceKey = DimensionStorage.get().putDimension(party, dimension.dimensionName());
+        ResourceKey<Level> levelResourceKey = DimensionStorage.get(source.getServer()).putDimension(party, dimension.dimensionName());
 
         // Remove the dimension from the archived dims
-        DimensionStorage.get().getArchivedDimensions().remove(dimension);
-        DimensionStorage.get().setDirty();
+        DimensionStorage.get(source.getServer()).getArchivedDimensions().remove(dimension);
+        DimensionStorage.get(source.getServer()).setDirty();
 
         DynamicDimensionManager.teleport(player, levelResourceKey);
 
@@ -99,7 +99,7 @@ public class FTBStoneBlockCommands {
     }
 
     private static int prune(CommandSourceStack source, ArchivedDimension dimension) throws CommandSyntaxException {
-        List<ArchivedDimension> archivedDimensions = DimensionStorage.get().getArchivedDimensions();
+        List<ArchivedDimension> archivedDimensions = DimensionStorage.get(source.getServer()).getArchivedDimensions();
         if (!archivedDimensions.contains(dimension)) {
             throw DIM_MISSING.create(dimension.dimensionName());
         }
@@ -107,7 +107,7 @@ public class FTBStoneBlockCommands {
         DynamicDimensionManager.destroy(source.getServer(), ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension.dimensionName()));
 
         archivedDimensions.remove(dimension);
-        DimensionStorage.get().setDirty();
+        DimensionStorage.get(source.getServer()).setDirty();
 
         source.sendSuccess(new TextComponent("Successfully pruned %s".formatted(dimension.dimensionName())).withStyle(ChatFormatting.GREEN), false);
         return 0;
@@ -115,15 +115,15 @@ public class FTBStoneBlockCommands {
 
     private static int prune(CommandSourceStack source) {
         MinecraftServer server = source.getServer();
-        List<ArchivedDimension> archivedDimensions = DimensionStorage.get().getArchivedDimensions();
+        List<ArchivedDimension> archivedDimensions = DimensionStorage.get(source.getServer()).getArchivedDimensions();
         int size = archivedDimensions.size();
 
         for (ArchivedDimension e : archivedDimensions) {
             DynamicDimensionManager.destroy(server, ResourceKey.create(Registry.DIMENSION_REGISTRY, e.dimensionName()));
         }
 
-        DimensionStorage.get().getArchivedDimensions().clear();
-        DimensionStorage.get().setDirty();
+        DimensionStorage.get(source.getServer()).getArchivedDimensions().clear();
+        DimensionStorage.get(source.getServer()).setDirty();
 
         source.sendSuccess(new TextComponent("Successfully pruned %s dimensions".formatted(size)).withStyle(ChatFormatting.GREEN), false);
 
@@ -131,7 +131,7 @@ public class FTBStoneBlockCommands {
     }
 
     private static int listArchived(CommandSourceStack source) {
-        List<ArchivedDimension> archivedDimensions = DimensionStorage.get().getArchivedDimensions();
+        List<ArchivedDimension> archivedDimensions = DimensionStorage.get(source.getServer()).getArchivedDimensions();
         if (archivedDimensions.isEmpty()) {
             source.sendFailure(new TextComponent("No archived dimensions available"));
             return -1;

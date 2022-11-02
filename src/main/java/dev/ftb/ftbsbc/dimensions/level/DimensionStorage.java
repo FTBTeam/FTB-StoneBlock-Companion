@@ -10,6 +10,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -39,12 +40,36 @@ public class DimensionStorage extends SavedData {
     private boolean lobbySpawned = false;
     private BlockPos lobbySpawnPos = BlockPos.ZERO;
 
+    @Nullable
     public static DimensionStorage get() {
-        DimensionDataStorage dataStorage = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD)
-                .getDataStorage();
+        var level = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+        if (level == null) {
+            return null;
+        }
 
-        // I messed up and used a file name with : in it which broke windows. This was then shipped... This fixes that mistake, for 99.9% of users
-        // this will never be run. Annoyingly we always have to do this check but, on the plus side, this method isn't called much
+        DimensionDataStorage dataStorage = level.getDataStorage();
+        fixWrongNameIssue(dataStorage);
+
+        return dataStorage
+                .computeIfAbsent(DimensionStorage::load, DimensionStorage::new, SAVE_NAME);
+    }
+
+    public static DimensionStorage get(MinecraftServer server) {
+        DimensionDataStorage dataStorage = server.getLevel(Level.OVERWORLD).getDataStorage();
+
+        fixWrongNameIssue(dataStorage);
+
+        return dataStorage
+                .computeIfAbsent(DimensionStorage::load, DimensionStorage::new, SAVE_NAME);
+    }
+
+    /**
+     * TODO: remove this soon
+     *
+     * I messed up and used a file name with : in it which broke windows. This was then shipped... This fixes that mistake, for 99.9% of users
+     * this will never be run. Annoyingly we always have to do this check but, on the plus side, this method isn't called much
+     */
+    private static void fixWrongNameIssue(DimensionDataStorage dataStorage) {
         String oldName = new ResourceLocation(FTBStoneBlock.MOD_ID, "dimension_store").toString();
         File dataFile = dataStorage.getDataFile(oldName);
         if (dataFile.exists()) {
@@ -52,14 +77,11 @@ public class DimensionStorage extends SavedData {
                 byte[] bytes = fileInput.readAllBytes();
                 File newDataFile = dataStorage.getDataFile(SAVE_NAME);
                 Files.write(newDataFile.toPath(), bytes);
-                dataFile.delete();
+                var ignored = dataFile.delete();
             } catch (IOException e) {
                 LOGGER.error("Failed to migrate data to new file", e);
             }
         }
-
-        return dataStorage
-                .computeIfAbsent(DimensionStorage::load, DimensionStorage::new, SAVE_NAME);
     }
 
     @Nullable

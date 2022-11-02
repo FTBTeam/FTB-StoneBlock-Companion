@@ -40,7 +40,12 @@ public class DimensionCommandArgument implements ArgumentType<ArchivedDimension>
         }
 
         String s = reader.getString().substring(i, reader.getCursor());
-        Optional<ArchivedDimension> instance = DimensionStorage.get().getArchivedDimension(new ResourceLocation(s));
+        DimensionStorage dimensionStorage = DimensionStorage.get();
+        if (dimensionStorage == null) {
+            throw DIMENSION_NAME_NOT_FOUND.createWithContext(reader, s);
+        }
+
+        Optional<ArchivedDimension> instance = dimensionStorage.getArchivedDimension(new ResourceLocation(s));
 
         if (instance.isPresent()) {
             return instance.get();
@@ -52,7 +57,12 @@ public class DimensionCommandArgument implements ArgumentType<ArchivedDimension>
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder builder) {
         if (commandContext.getSource() instanceof SharedSuggestionProvider) {
-            return SharedSuggestionProvider.suggest(DimensionStorage.get().getArchivedDimensions().stream().map(e -> e.dimensionName().toString()), builder);
+            DimensionStorage dimensionStorage = DimensionStorage.get();
+            if (dimensionStorage == null) {
+                return Suggestions.empty();
+            }
+
+            return SharedSuggestionProvider.suggest(dimensionStorage.getArchivedDimensions().stream().map(e -> e.dimensionName().toString()), builder);
         }
 
         return Suggestions.empty();

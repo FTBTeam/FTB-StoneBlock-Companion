@@ -163,10 +163,10 @@ public class DynamicDimensionManager {
 
 	public static boolean teleport(ServerPlayer player, ResourceKey<Level> key) {
 		ServerLevel level = player.server.getLevel(key);
-
+aa
 		if (level != null) {
 			if (key.equals(Level.OVERWORLD)) {
-				BlockPos lobbySpawnPos = DimensionStorage.get().getLobbySpawnPos();
+				BlockPos lobbySpawnPos = DimensionStorage.get(player.server).getLobbySpawnPos();
 				player.teleportTo(level, lobbySpawnPos.getX() + .5D, lobbySpawnPos.getY() + .01D, lobbySpawnPos.getZ() + .5D, player.getYRot(), player.getXRot());
 			} else {
 				Vector3d vec = new Vector3d(0.5D, 1.1D, 0.5D);
@@ -174,7 +174,7 @@ public class DynamicDimensionManager {
 				if (player.getRespawnDimension().equals(key) && respawnPosition != null) {
 					vec.add(new Vector3d(respawnPosition.getX(), respawnPosition.getY(), respawnPosition.getZ()));
 				} else {
-					BlockPos levelSharedSpawn = DimensionStorage.get().getDimensionSpawnLocations(level.dimension().location());
+					BlockPos levelSharedSpawn = DimensionStorage.get(player.server).getDimensionSpawnLocations(level.dimension().location());
 					if (levelSharedSpawn == null) {
 						levelSharedSpawn = BlockPos.ZERO;
 					}

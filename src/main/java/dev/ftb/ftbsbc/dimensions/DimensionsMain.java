@@ -58,7 +58,7 @@ public class DimensionsMain {
             return;
         }
 
-        BlockPos blockPos = DimensionStorage.get().getDimensionSpawnLocations(dimension.location());
+        BlockPos blockPos = DimensionStorage.get(event.getPlayer().server).getDimensionSpawnLocations(dimension.location());
         if (blockPos != null) {
             event.getPlayer().setRespawnPosition(dimension, blockPos, 0, true, false);
             DynamicDimensionManager.teleport(event.getPlayer(), dimension);
@@ -72,8 +72,8 @@ public class DimensionsMain {
             return;
         }
 
-        if (DimensionStorage.get().isLobbySpawned() && !level.getSharedSpawnPos().equals(DimensionStorage.get().getLobbySpawnPos())) {
-            level.setDefaultSpawnPos(DimensionStorage.get().getLobbySpawnPos(), 180F);
+        if (DimensionStorage.get(minecraftServer).isLobbySpawned() && !level.getSharedSpawnPos().equals(DimensionStorage.get(minecraftServer).getLobbySpawnPos())) {
+            level.setDefaultSpawnPos(DimensionStorage.get(minecraftServer).getLobbySpawnPos(), 180F);
             LOGGER.info("Updating shared spawn to the lobby location");
         }
     }
@@ -92,7 +92,7 @@ public class DimensionsMain {
             return;
         }
 
-        if (!level.dimension().location().equals(OVERWORLD) || StoneBlockDataKjs.lobbyStructure == null || DimensionStorage.get().isLobbySpawned()) {
+        if (!level.dimension().location().equals(OVERWORLD) || StoneBlockDataKjs.lobbyStructure == null || DimensionStorage.get(event.getWorld().getServer()).isLobbySpawned()) {
             if (StoneBlockDataKjs.lobbyStructure == null) {
                 LOGGER.warn("Lobby structure not defined in kubejs");
             }
@@ -100,7 +100,7 @@ public class DimensionsMain {
         }
 
         if (!level.dimension().location().equals(OVERWORLD)) {
-            BlockPos dimSpawn = DimensionStorage.get().getDimensionSpawnLocations(((ServerLevel) event.getWorld()).dimension().location());
+            BlockPos dimSpawn = DimensionStorage.get(event.getWorld().getServer()).getDimensionSpawnLocations(((ServerLevel) event.getWorld()).dimension().location());
             if (!level.getSharedSpawnPos().equals(dimSpawn)) {
                 level.setDefaultSpawnPos(dimSpawn == null ? BlockPos.ZERO.above(1) : dimSpawn, 0f);
             }
@@ -115,8 +115,8 @@ public class DimensionsMain {
 
         lobby.placeInWorld(level, lobbyLoc, lobbyLoc, placeSettings, level.random, Block.UPDATE_ALL);
 
-        DimensionStorage.get().setLobbySpawnPos(playerSpawn);
-        DimensionStorage.get().setLobbySpawned(true);
+        DimensionStorage.get(event.getWorld().getServer()).setLobbySpawnPos(playerSpawn);
+        DimensionStorage.get(event.getWorld().getServer()).setLobbySpawned(true);
 
         level.removeBlock(playerSpawn, false);
         LOGGER.info("Spawned lobby structure");
@@ -125,7 +125,7 @@ public class DimensionsMain {
     private static void teamPlayerLeftParty(PlayerLeftPartyTeamEvent event) {
         ServerPlayer serverPlayer = event.getPlayer();
         if (serverPlayer != null) {
-            ResourceKey<Level> dimensionId = DimensionStorage.get().getDimensionId(event.getTeam());
+            ResourceKey<Level> dimensionId = DimensionStorage.get(event.getPlayer().server).getDimensionId(event.getTeam());
             if (dimensionId == null) {
                 return;
             }
@@ -137,11 +137,11 @@ public class DimensionsMain {
             }
 
             if (event.getTeamDeleted()) {
-                DimensionStorage.get().archiveDimension(event.getTeam());
+                DimensionStorage.get(event.getPlayer().server).archiveDimension(event.getTeam());
             }
 
             DynamicDimensionManager.teleport(serverPlayer, Level.OVERWORLD);
-            serverPlayer.setRespawnPosition(Level.OVERWORLD, DimensionStorage.get().getLobbySpawnPos(), 180F, true, false);
+            serverPlayer.setRespawnPosition(Level.OVERWORLD, DimensionStorage.get(serverPlayer.server).getLobbySpawnPos(), 180F, true, false);
         }
     }
 
@@ -153,7 +153,7 @@ public class DimensionsMain {
 
         if (event.getWorld().dimension().location().equals(OVERWORLD) && player.getRespawnDimension().location().equals(OVERWORLD)) {
             // Assume this is their first time joining the world as otherwise their respawn dimension would be their own dimension
-            BlockPos lobbySpawnPos = DimensionStorage.get().getLobbySpawnPos();
+            BlockPos lobbySpawnPos = DimensionStorage.get(player.server).getLobbySpawnPos();
             if (player.getRespawnPosition() == null || !player.getRespawnPosition().equals(lobbySpawnPos)) {
                 player.setRespawnPosition(event.getWorld().dimension(), lobbySpawnPos, -180, true, false);
                 player.teleportTo((ServerLevel) event.getWorld(), lobbySpawnPos.getX(), lobbySpawnPos.getY(), lobbySpawnPos.getZ(), -180F, -10F);

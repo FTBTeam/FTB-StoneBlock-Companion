@@ -47,7 +47,7 @@ public enum DimensionsManager {
             return null;
         }
 
-        return DimensionStorage.get().getDimensionId(team);
+        return DimensionStorage.get(team.manager.server).getDimensionId(team);
     }
 
     public void createDimForTeam(ServerPlayer player, ResourceLocation prebuiltLocation) {
@@ -64,20 +64,20 @@ public enum DimensionsManager {
         }
 
         // I don't know how this would happen but make sure they don't have a dim at this point...
-        ResourceKey<Level> dimensionId = DimensionStorage.get().getDimensionId(playerTeam);
+        ResourceKey<Level> dimensionId = DimensionStorage.get(player.server).getDimensionId(playerTeam);
         if (dimensionId != null) {
             DynamicDimensionManager.teleport(player, dimensionId);
             return;
         }
 
         // Create the dim and store the key
-        List<String> existing = DimensionStorage.get().getTeamToDimension().values().stream().map(e -> e.getPath().split("/")[1]).toList();
+        List<String> existing = DimensionStorage.get(player.server).getTeamToDimension().values().stream().map(e -> e.getPath().split("/")[1]).toList();
 
         String dimensionName;
         // Legit the simplest way of doing collision detection.
         while (existing.contains(dimensionName = generateDimensionName())) {}
 
-        ResourceKey<Level> key = DimensionStorage.get().putDimension(playerTeam, dimensionName);
+        ResourceKey<Level> key = DimensionStorage.get(player.server).putDimension(playerTeam, dimensionName);
 
         ServerLevel serverLevel = DynamicDimensionManager.create(player.server, key, prebuiltLocation);
         // Attempt to load the structure and get the spawn location of the island / structure
@@ -85,9 +85,9 @@ public enum DimensionsManager {
             BlockPos blockPos = StartStructure.locateSpawn(structure, StartStructurePiece.makeSettings(structure))
                     .offset(-(structure.getSize().getX() / 2), 1, -(structure.getSize().getZ() / 2));
 
-            BlockPos dimensionSpawnLocations = DimensionStorage.get().getDimensionSpawnLocations(serverLevel.getLevel().dimension().location());
+            BlockPos dimensionSpawnLocations = DimensionStorage.get(player.server).getDimensionSpawnLocations(serverLevel.getLevel().dimension().location());
             if (dimensionSpawnLocations == null) {
-                DimensionStorage.get().addDimensionSpawn(serverLevel.getLevel().dimension().location(), blockPos);
+                DimensionStorage.get(player.server).addDimensionSpawn(serverLevel.getLevel().dimension().location(), blockPos);
                 FTBStoneBlock.LOGGER.info("Adding spawn to dim storage");
             }
 
