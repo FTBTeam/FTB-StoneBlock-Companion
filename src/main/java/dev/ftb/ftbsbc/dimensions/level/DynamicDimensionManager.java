@@ -163,7 +163,7 @@ public class DynamicDimensionManager {
 
 	public static boolean teleport(ServerPlayer player, ResourceKey<Level> key) {
 		ServerLevel level = player.server.getLevel(key);
-aa
+
 		if (level != null) {
 			if (key.equals(Level.OVERWORLD)) {
 				BlockPos lobbySpawnPos = DimensionStorage.get(player.server).getLobbySpawnPos();
