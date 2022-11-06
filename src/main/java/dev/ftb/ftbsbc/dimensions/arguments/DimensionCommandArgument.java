@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import dev.ftb.ftbsbc.dimensions.DimensionsClient;
 import dev.ftb.ftbsbc.dimensions.level.ArchivedDimension;
 import dev.ftb.ftbsbc.dimensions.level.DimensionStorage;
 import net.minecraft.commands.CommandSourceStack;
@@ -56,13 +57,9 @@ public class DimensionCommandArgument implements ArgumentType<ArchivedDimension>
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder builder) {
+        System.out.println(DimensionsClient.knownDimensions);
         if (commandContext.getSource() instanceof SharedSuggestionProvider) {
-            DimensionStorage dimensionStorage = DimensionStorage.get();
-            if (dimensionStorage == null) {
-                return Suggestions.empty();
-            }
-
-            return SharedSuggestionProvider.suggest(dimensionStorage.getArchivedDimensions().stream().map(e -> e.dimensionName().toString()), builder);
+            return SharedSuggestionProvider.suggest(DimensionsClient.knownDimensions.stream().map(e -> e.dimensionName().toString()), builder);
         }
 
         return Suggestions.empty();

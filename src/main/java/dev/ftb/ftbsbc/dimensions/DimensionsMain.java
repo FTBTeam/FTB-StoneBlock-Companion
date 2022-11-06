@@ -1,12 +1,14 @@
 package dev.ftb.ftbsbc.dimensions;
 
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.PlayerEvent;
 import dev.ftb.ftbsbc.config.FTBSBConfig;
 import dev.ftb.ftbsbc.dimensions.kubejs.StoneBlockDataKjs;
 import dev.ftb.ftbsbc.dimensions.level.DimensionStorage;
 import dev.ftb.ftbsbc.dimensions.level.DynamicDimensionManager;
 import dev.ftb.ftbsbc.dimensions.level.stoneblock.StartStructure;
 import dev.ftb.ftbsbc.dimensions.level.stoneblock.StartStructurePiece;
+import dev.ftb.ftbsbc.dimensions.net.SyncArchivedDimensions;
 import dev.ftb.mods.ftbteams.data.Team;
 import dev.ftb.mods.ftbteams.data.TeamType;
 import dev.ftb.mods.ftbteams.event.PlayerJoinedPartyTeamEvent;
@@ -45,6 +47,12 @@ public class DimensionsMain {
         TeamEvent.PLAYER_LEFT_PARTY.register(DimensionsMain::teamPlayerLeftParty);
         TeamEvent.PLAYER_JOINED_PARTY.register(DimensionsMain::teamPlayerJoin);
         LifecycleEvent.SERVER_STARTED.register(DimensionsMain::serverStart);
+
+        PlayerEvent.PLAYER_JOIN.register(DimensionsMain::syncDimensions);
+    }
+
+    private static void syncDimensions(ServerPlayer player) {
+        new SyncArchivedDimensions(DimensionStorage.get(player.server).getArchivedDimensions()).sendTo(player);
     }
 
     private static void teamPlayerJoin(PlayerJoinedPartyTeamEvent event) {
@@ -137,7 +145,9 @@ public class DimensionsMain {
             }
 
             if (event.getTeamDeleted()) {
-                DimensionStorage.get(event.getPlayer().server).archiveDimension(event.getTeam());
+                DimensionStorage dimensionStorage = DimensionStorage.get(event.getPlayer().server);
+                dimensionStorage.archiveDimension(event.getTeam());
+                new SyncArchivedDimensions(dimensionStorage.getArchivedDimensions()).sendToAll(serverPlayer.server);
             }
 
             DynamicDimensionManager.teleport(serverPlayer, Level.OVERWORLD);

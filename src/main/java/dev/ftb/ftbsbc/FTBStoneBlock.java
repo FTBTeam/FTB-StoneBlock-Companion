@@ -8,6 +8,7 @@ import dev.ftb.ftbsbc.dimensions.DimensionsMain;
 import dev.ftb.ftbsbc.dimensions.DimensionsRegistry;
 import dev.ftb.ftbsbc.dimensions.net.CreateDimensionForTeam;
 import dev.ftb.ftbsbc.dimensions.net.ShowSelectionGui;
+import dev.ftb.ftbsbc.dimensions.net.SyncArchivedDimensions;
 import dev.ftb.ftbsbc.dimensions.net.UpdateDimensionsList;
 import dev.ftb.ftbsbc.portal.PortalClient;
 import dev.ftb.ftbsbc.portal.PortalRegistry;
@@ -42,6 +43,7 @@ public class FTBStoneBlock {
     public static final MessageType UPDATE_DIMENSION_LIST = NET.registerS2C("update_dimensions_list", UpdateDimensionsList::new);
     public static final MessageType CREATE_DIMENSION_FOR_TEAM = NET.registerC2S("create_dimension_for_team", CreateDimensionForTeam::new);
     public static final MessageType SHOW_SELECTION_GUI = NET.registerS2C("show_start_selection", ShowSelectionGui::new);
+    public static final MessageType SYNC_ARCHIVED_DIMENSIONS = NET.registerS2C("sync_archived_dimensions", SyncArchivedDimensions::new);
 
     public FTBStoneBlock() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, FTBSBConfig.COMMON_CONFIG);

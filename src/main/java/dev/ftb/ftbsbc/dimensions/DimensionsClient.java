@@ -3,6 +3,7 @@ package dev.ftb.ftbsbc.dimensions;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.ftb.ftbsbc.FTBStoneBlock;
 import dev.ftb.ftbsbc.dimensions.kubejs.StoneBlockDataKjs;
+import dev.ftb.ftbsbc.dimensions.level.ArchivedDimension;
 import dev.ftb.ftbsbc.dimensions.net.CreateDimensionForTeam;
 import dev.ftb.ftbsbc.dimensions.screen.StartSelectScreen;
 import dev.latvian.mods.kubejs.KubeJS;
@@ -26,11 +27,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class DimensionsClient {
     public static boolean debugMode = false;
+    public static final List<ArchivedDimension> knownDimensions = new ArrayList<>();
 
     @SubscribeEvent
     public static void registerClientCommand(RegisterClientCommandsEvent event) {
