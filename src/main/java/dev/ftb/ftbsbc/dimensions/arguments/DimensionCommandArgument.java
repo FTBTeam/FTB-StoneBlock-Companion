@@ -57,7 +57,6 @@ public class DimensionCommandArgument implements ArgumentType<ArchivedDimension>
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder builder) {
-        System.out.println(DimensionsClient.knownDimensions);
         if (commandContext.getSource() instanceof SharedSuggestionProvider) {
             return SharedSuggestionProvider.suggest(DimensionsClient.knownDimensions.stream().map(e -> e.dimensionName().toString()), builder);
         }
