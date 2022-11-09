@@ -90,8 +90,11 @@ public class AutoHammerBlockEntity extends BlockEntity {
         // By default, lets try and insert and export items in and out of the internal buffers
         blockEntity.pushPullInventories();
 
+        ItemStack inputStack = blockEntity.inputInventory.getStackInSlot(0);
+        List<ItemStack> hammerDrops = ToolsRecipeCache.getHammerDrops(level, inputStack);
+
         boolean isActive = state.getValue(AutoHammerBlock.ACTIVE);
-        boolean shouldBeActive = blockEntity.inputHasItemsAndOutputIsClear();
+        boolean shouldBeActive = blockEntity.inputHasItemsAndOutputIsClear(hammerDrops);
         if (shouldBeActive && !isActive) {
             level.setBlock(pos, state.setValue(AutoHammerBlock.ACTIVE, true), 3);
         } else if(!shouldBeActive && isActive) {
@@ -99,11 +102,8 @@ public class AutoHammerBlockEntity extends BlockEntity {
         }
 
         if (!blockEntity.processing) {
-            ItemStack inputStack = blockEntity.inputInventory.getStackInSlot(0);
             if (!inputStack.isEmpty()) {
                 // Attempt to insert the items into the output, Time out and stop if any items would be lost
-                List<ItemStack> hammerDrops = ToolsRecipeCache.getHammerDrops(level, inputStack);
-
                 // If we consumed all items, start processing
                 if (hammerDrops.size() > 0 && blockEntity.pushIntoInternalOutputInventory(hammerDrops, true) >= hammerDrops.size()) {
                     blockEntity.heldItem = inputStack.copy();
@@ -185,12 +185,9 @@ public class AutoHammerBlockEntity extends BlockEntity {
         int inserted = 0;
 
         for (ItemStack item : items) {
-            for (int i = 0; i < outputInventory.getSlots(); i++) {
-                ItemStack insert = outputInventory.internalInsert(i, item.copy(), simulate);
-                if (insert.isEmpty()) {
-                    inserted ++;
-                    break;
-                }
+            ItemStack insert = outputInventory.internalInsert(item.copy(), simulate);
+            if (insert.isEmpty()) {
+                inserted ++;
             }
         }
 
@@ -206,7 +203,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
         return EmptyHandler.INSTANCE;
     }
 
-    public boolean inputHasItemsAndOutputIsClear() {
+    public boolean inputHasItemsAndOutputIsClear(List<ItemStack> hammerDrops) {
         if (inputInventory.getStackInSlot(0).isEmpty()) {
             return false;
         }
@@ -214,9 +211,16 @@ public class AutoHammerBlockEntity extends BlockEntity {
         boolean hasSpace = false;
         for (int i = 0; i < outputInventory.getSlots(); i++) {
             ItemStack stackInSlot = outputInventory.getStackInSlot(i);
-            if (stackInSlot.isEmpty() || (stackInSlot.getCount() != stackInSlot.getMaxStackSize() && stackInSlot.getItem() == inputInventory.getStackInSlot(0).getItem())) {
+            if (stackInSlot.isEmpty()) {
                 hasSpace = true;
                 break;
+            }
+
+            for (ItemStack hammerDrop : hammerDrops) {
+                if (stackInSlot.getItem().equals(hammerDrop.getItem()) && stackInSlot.getCount() < stackInSlot.getMaxStackSize()) {
+                    hasSpace = true;
+                    break;
+                }
             }
         }
 

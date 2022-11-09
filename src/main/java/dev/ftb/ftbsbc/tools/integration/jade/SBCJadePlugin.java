@@ -4,8 +4,11 @@ import dev.ftb.ftbsbc.tools.content.autohammer.AutoHammerBlock;
 import dev.ftb.ftbsbc.tools.content.autohammer.AutoHammerBlockEntity;
 import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.config.IPluginConfig;
+import mcp.mobius.waila.api.ui.IElement;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -47,38 +51,55 @@ public class SBCJadePlugin implements IWailaPlugin {
             var helper = iTooltip.getElementHelper();
 
             int timeout = serverData.getInt("timeout");
+            int maxTimeout = serverData.getInt("maxTimeout");
+
             if (timeout == 0) {
-                iTooltip.add(new TranslatableComponent("ftbsbc.jade.processing", serverData.getInt("progress"), serverData.getInt("maxProgress")));
+                iTooltip.add(helper.progress((float) serverData.getInt("progress") / (float) serverData.getInt("maxProgress"), null, helper.progressStyle().color(0xAD00FF00), helper.borderStyle().color(0x0FFFFFFF)));
             } else {
-                iTooltip.append(new TranslatableComponent("ftbsbc.jade.waiting", timeout));
+                iTooltip.add(helper.progress((float) timeout / (float) maxTimeout, null, helper.progressStyle().color(0xADFF0000), helper.borderStyle().color(0x0FFFFFFF)));
             }
 
             var inputStack = LightItem.deserialize(serverData.getCompound("input")).toStack();
-            var outputStack = LightItem.deserialize(serverData.getCompound("output")).toStack();
 
-            ITooltip tooltip = helper.tooltip();
-            if (!inputStack.isEmpty()) {
-                tooltip.append(helper.item(inputStack));
-                tooltip.append(helper.spacer(5, 0));
-                var nameTip = helper.tooltip();
-                nameTip.append(new TranslatableComponent("ftbsbc.jade.input"));
-                nameTip.add(inputStack.getHoverName().copy().italic());
-                tooltip.append(helper.box(nameTip, helper.borderStyle().width(0)));
-            }
-
-            if (!outputStack.isEmpty()) {
-                if (!inputStack.isEmpty()) {
-                    tooltip.append(helper.spacer(10, 0));
+            List<ItemStack> outputItems = new ArrayList<>();
+            if (serverData.contains("output")) {
+                var items = serverData.getList("output", Tag.TAG_COMPOUND);
+                for (Tag item : items) {
+                    outputItems.add(LightItem.deserialize((CompoundTag) item).toStack());
                 }
-                tooltip.append(helper.item(outputStack));
-                tooltip.append(helper.spacer(5, 0));
-                var nameTip = helper.tooltip();
-                nameTip.append(new TranslatableComponent("ftbsbc.jade.buffer"));
-                nameTip.add(outputStack.getHoverName().copy().italic());
-                tooltip.append(helper.box(nameTip, helper.borderStyle().width(0)));
             }
 
-            iTooltip.add(helper.box(tooltip, helper.borderStyle().color(0x0FFFFFFF)));
+            if (!inputStack.isEmpty()) {
+                iTooltip.add(helper.item(inputStack));
+                ITooltip tooltip = helper.tooltip();
+                tooltip.append(helper.text(new TranslatableComponent("ftbsbc.jade.input")));
+                iTooltip.append(helper.box(tooltip, helper.borderStyle().width(0)).align(IElement.Align.RIGHT));
+            }
+
+            if (!outputItems.isEmpty()) {
+                iTooltip.add(helper.spacer(-5, 0));
+                ITooltip tooltip = helper.tooltip();
+
+                // Creates rows of 5 to prevent the box getting too big.
+                int count = 0;
+                float scale = outputItems.size() > 5 ? .8f : 1f;
+                for (ItemStack outputItem : outputItems) {
+                    if (count != 0 && count % 5 == 0) {
+                        tooltip.add(helper.item(outputItem, scale));
+                        count = 0;
+                        continue;
+                    }
+                    tooltip.append(helper.item(outputItem, scale));
+                    count ++;
+                }
+
+                iTooltip.append(helper.box(tooltip,  helper.borderStyle().width(0)));
+
+                // Hacks to make the boxes not look stupid
+                ITooltip text = helper.tooltip();
+                text.append(helper.text(new TranslatableComponent("ftbsbc.jade.buffer")));
+                iTooltip.append(helper.box(text, helper.borderStyle().width(0)).align(IElement.Align.RIGHT));
+            }
         }
 
         @Override
@@ -90,6 +111,7 @@ public class SBCJadePlugin implements IWailaPlugin {
             compoundTag.putInt("progress", autoHammerEntity.getProgress());
             compoundTag.putInt("maxProgress", autoHammerEntity.getMaxProgress());
             compoundTag.putInt("timeout", autoHammerEntity.getTimeOut());
+            compoundTag.putInt("maxTimeout", autoHammerEntity.getTimeoutDuration());
 
             Direction direction = autoHammerEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
             ItemStack inputStack = autoHammerEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, AutoHammerBlockEntity.getInputDirection(direction))
@@ -99,22 +121,20 @@ public class SBCJadePlugin implements IWailaPlugin {
             compoundTag.put("input", LightItem.create(inputStack).serialize());
 
             LazyOptional<IItemHandler> capability = autoHammerEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, AutoHammerBlockEntity.getOutputDirection(direction));
-            ItemStack itemStack = capability
-                    .map(h -> h.getStackInSlot(0))
-                    .orElse(ItemStack.EMPTY);
+            IItemHandler inventory = capability
+                    .orElse(EmptyHandler.INSTANCE);
 
-            // Count the items in the slot, lazyOptional sucks, map them to a sum of all stacks
-            int count = capability.map(e -> {
-                List<ItemStack> stacks = new ArrayList<>();
-                for (int i = 0; i < e.getSlots(); i++) {
-                    stacks.add(e.getStackInSlot(i).copy());
+            ListTag tagItems = new ListTag();
+            for (int i = 0; i < inventory.getSlots(); i++) {
+                ItemStack stackInSlot = inventory.getStackInSlot(i);
+                if (stackInSlot.isEmpty()) {
+                    continue;
                 }
 
-                return stacks;
-            }).orElse(new ArrayList<>())
-                    .stream().mapToInt(ItemStack::getCount).sum();
+                tagItems.add(new LightItem(stackInSlot.getItem().getRegistryName(), stackInSlot.getCount()).serialize());
+            }
 
-            compoundTag.put("output", new LightItem(itemStack.getItem().getRegistryName(), count).serialize());
+            compoundTag.put("output", tagItems);
         }
     }
 

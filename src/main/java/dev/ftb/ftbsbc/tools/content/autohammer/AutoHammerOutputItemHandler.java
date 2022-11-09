@@ -1,7 +1,5 @@
 package dev.ftb.ftbsbc.tools.content.autohammer;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +19,28 @@ public class AutoHammerOutputItemHandler extends ItemStackHandler {
     }
 
     @NotNull
-    public ItemStack internalInsert(int slot, @NotNull ItemStack stack, boolean simulate) {
-        ItemStack itemStack = super.insertItem(slot, stack, simulate);
+    public ItemStack internalInsert(@NotNull ItemStack stack, boolean simulate) {
+        var availableSlot = getAvailableSlot(stack);
+        if (availableSlot == -1) {
+            return stack;
+        }
+
+        ItemStack itemStack = super.insertItem(availableSlot, stack, simulate);
         if (!simulate) {
             autoHammerBlockEntity.setChanged();
         }
         return itemStack;
+    }
+
+    private int getAvailableSlot(ItemStack tryStack) {
+        for (int i = 0; i < this.getSlots(); i++) {
+            ItemStack stackInSlot = this.getStackInSlot(i);
+            if (stackInSlot.isEmpty() || (stackInSlot.getCount() < stackInSlot.getMaxStackSize() && stackInSlot.getItem().equals(tryStack.getItem()))) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     @NotNull
@@ -37,46 +51,5 @@ public class AutoHammerOutputItemHandler extends ItemStackHandler {
             autoHammerBlockEntity.setChanged();
         }
         return itemStack;
-    }
-
-    @Override
-    protected int getStackLimit(int slot, @NotNull ItemStack stack) {
-        return 64 * 8; // Can hold 8 stacks
-    }
-
-    @Override
-    public CompoundTag serializeNBT() {
-        ListTag nbtTagList = new ListTag();
-        for (int i = 0; i < stacks.size(); i++) {
-            if (!stacks.get(i).isEmpty()) {
-                CompoundTag itemTag = new CompoundTag();
-                itemTag.putInt("Slot", i);
-                stacks.get(i).save(itemTag);
-                itemTag.putByte("Count", (byte) 1);
-                itemTag.putInt("LargeCount", stacks.get(i).getCount());
-                nbtTagList.add(itemTag);
-            }
-        }
-        CompoundTag nbt = new CompoundTag();
-        nbt.put("Items", nbtTagList);
-        nbt.putInt("Size", stacks.size());
-        return nbt;
-    }
-
-    @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        setSize(nbt.contains("Size", CompoundTag.TAG_INT) ? nbt.getInt("Size") : stacks.size());
-        ListTag tagList = nbt.getList("Items", CompoundTag.TAG_COMPOUND);
-        for (int i = 0; i < tagList.size(); i++) {
-            CompoundTag itemTags = tagList.getCompound(i);
-            int slot = itemTags.getInt("Slot");
-
-            if (slot >= 0 && slot < stacks.size()) {
-                ItemStack of = ItemStack.of(itemTags);
-                of.setCount(itemTags.getInt("LargeCount"));
-                stacks.set(slot, of);
-            }
-        }
-        onLoad();
     }
 }
