@@ -22,10 +22,7 @@ public class MonsterDarkEnoughMixin {
     private static void isDarkEnoughToSpawnInBiome(ServerLevelAccessor accessor, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> callback) {
         // Only modify the logic if it's the forest biome
         if (accessor.getBiome(pos).is(BiomeTags.IS_FOREST)) {
-            callback.setReturnValue(accessor.getBrightness(LightLayer.BLOCK, pos) < 9);
-            return;
+            callback.setReturnValue(accessor.getBrightness(LightLayer.BLOCK, pos) <= 6);
         }
-
-        callback.setReturnValue(callback.getReturnValue());
     }
 }
