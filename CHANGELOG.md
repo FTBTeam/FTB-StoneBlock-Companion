@@ -1,7 +1,7 @@
 # Changelog
 
-## [0.6.6]
+## [0.6.7]
 
-### Changed
+### Fixed
 
-- Adjusted the mob spawning rules for the forest biome
+- Biomes not being able to spawn mobs unless they were in the Forest Biome
