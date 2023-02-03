@@ -94,7 +94,7 @@ public class FTBStoneBlockCommands {
     }
 
     private static int restore(CommandSourceStack source, ArchivedDimension dimension, ServerPlayer player) throws CommandSyntaxException {
-        PartyTeam party = FTBTeamsAPI.getManager().createParty(player, player.getName().getString() + " Party", false).getValue();
+        PartyTeam party = FTBTeamsAPI.getManager().createParty(player, player.getName().getString() + " Party").getValue();
         ResourceKey<Level> levelResourceKey = DimensionStorage.get(source.getServer()).putDimension(party, dimension.dimensionName());
 
         // Remove the dimension from the archived dims

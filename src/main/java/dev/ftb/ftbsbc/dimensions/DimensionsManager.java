@@ -55,7 +55,7 @@ public enum DimensionsManager {
         Team playerTeam = FTBTeamsAPI.getPlayerTeam(player);
         if (playerTeam.getType() != TeamType.PARTY) {
             try {
-                playerTeam = FTBTeamsAPI.getManager().createParty(player, player.getName().getString() + " Party", false).getValue();
+                playerTeam = FTBTeamsAPI.getManager().createParty(player, player.getName().getString() + " Party").getValue();
             } catch (CommandSyntaxException e) {
                 // This likely can't happen
                 LOGGER.error("Unable to create player team due to " + e);
