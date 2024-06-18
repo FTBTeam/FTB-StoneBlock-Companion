@@ -56,7 +56,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
         }
     };
 
-    private final AutoHammerOutputItemHandler outputInventory = new AutoHammerOutputItemHandler(this, 8);
+    private final AutoHammerOutputItemHandler outputInventory = new AutoHammerOutputItemHandler(this, 12);
 
     private final LazyOptional<ItemStackHandler> inputInvLazy = LazyOptional.of(() -> inputInventory);
     private final LazyOptional<AutoHammerOutputItemHandler> outputInvLazy = LazyOptional.of(() -> outputInventory);

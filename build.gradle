@@ -116,11 +116,11 @@ if (ENV.CURSEFORGE_KEY) {
 	}
 }
 
-def ftbURL = "https://maven.ftb.dev/release"
-def sapsURL = "https://maven.saps.dev/minecraft"
+def ftbURL = "https://maven.ftb.dev/releases"
+def sapsURL = "https://maven.saps.dev/releases"
 def mavenVersion = project.version
 if (ENV.SNAPSHOT != null && ENV.SNAPSHOT == "true") {
-	ftbURL = "https://maven.ftb.dev/snapshot"
+	ftbURL = "https://maven.ftb.dev/snapshots"
 	mavenVersion += "-SNAPSHOT"
 }
 publishing {
